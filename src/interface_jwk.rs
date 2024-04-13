@@ -1,4 +1,7 @@
+use serde::Deserialize;
+
 #[allow(unused)]
+#[derive(Deserialize)]
 pub struct JWKPublicInterface {
     pub kty: String,
     pub e: String,
@@ -6,6 +9,7 @@ pub struct JWKPublicInterface {
 }
 
 #[allow(unused)]
+#[derive(Deserialize)]
 pub struct JWKInterface {
     pub base: JWKPublicInterface,
     d: Option<String>,

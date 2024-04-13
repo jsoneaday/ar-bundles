@@ -25,26 +25,35 @@ impl ArweaveSigner {
             jwk,            
             keypair_path: keypair_path.to_string()
         }
-    }
-
-    pub fn get_public_key(&self) -> Vec<u8> {
-        let mut output: Vec<u8> = vec![];
-        base64_url::encode_to_vec(&self.pk, &mut output);
-        output
-    }
-
-    pub fn sign(&self, message: &Vec<u8>) -> Result<Vec<u8>, ArBundleErrors> {
-        return get_crypto_driver(self.keypair_path.as_str()).sign(message);
-    }
+    }   
 }
 
-impl SignerMaker for ArweaveSigner {     
+impl SignerMaker for ArweaveSigner {
+    fn get_signature_type(&self) -> i64 {
+        self.signature_type
+    }
+
+    fn get_signature_length(&self) -> usize {
+        self.signature_length
+    }
+
+    fn get_owner_length(&self) -> usize {
+        self.owner_length
+    }
+
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, ArBundleErrors> {
         match get_crypto_driver(self.keypair_path.as_str()).sign(message) {
             Ok(res) => Ok(res),
             Err(e) => Err(e)
         }
     }
+
+    fn get_public_key(&self) -> Vec<u8> {
+        let mut output: Vec<u8> = vec![];
+        base64_url::encode_to_vec(&self.pk, &mut output);
+        output
+    }
+
     /// todo: figure out what to do about keypair_path
     fn verify(&self, pk: &[u8], message: &[u8], signature: &[u8]) -> bool {
         match get_crypto_driver(self.keypair_path.as_str()).verify(pk, message, signature) {

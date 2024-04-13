@@ -1,6 +1,6 @@
 use crate::data_item::DataItem;
 use crate::errors::ArBundleErrors;
-use crate::signing::signer::Signer;
+use crate::signing::signer::SignerMaker;
 use crate::tags::{serialize_tags, Tag};
 use crate::utils::{long_to_8_byte_array, short_to_2_byte_array};
 
@@ -15,8 +15,8 @@ pub enum Data {
     BinaryData(Vec<u8>)
 }
 
-pub fn create_data(data: Data, signer: &Signer, opts: Option<&DataItemCreateOptions>) -> Result<DataItem, ArBundleErrors> {
-    let _owner = &signer.public_key;
+pub fn create_data<T: SignerMaker>(data: Data, signer: &T, opts: Option<&DataItemCreateOptions>) -> Result<DataItem, ArBundleErrors> {
+    let _owner = &signer.get_public_key();
 
     let _target = if opts.is_some() && opts.unwrap().target.is_some() {
         let target = &opts.unwrap().target.as_ref().unwrap();
@@ -50,24 +50,24 @@ pub fn create_data(data: Data, signer: &Signer, opts: Option<&DataItemCreateOpti
     };
     let data_length = _data.len();
 
-    let length = 2 + signer.signature_length + signer.owner_length + target_length + anchor_length + tags_length + data_length;
+    let length = 2 + signer.get_signature_length() + signer.get_owner_length() + target_length + anchor_length + tags_length + data_length;
     let mut bytes = vec![0; length];
 
-    bytes[0..2].copy_from_slice(&short_to_2_byte_array(signer.signature_type).unwrap());
-    bytes[2..2 + signer.signature_length as usize].fill(0);
+    bytes[0..2].copy_from_slice(&short_to_2_byte_array(signer.get_signature_type()).unwrap());
+    bytes[2..2 + signer.get_signature_length() as usize].fill(0);
 
-    if _owner.len() != signer.owner_length as usize {
+    if _owner.len() != signer.get_owner_length() as usize {
         return Err(
             ArBundleErrors::IoFailure(
                 std::io::Error::new(std::io::ErrorKind::Other, 
-                    format!("Owner must be {} bytes, but was incorrectly {}", signer.owner_length, _owner.len())
+                    format!("Owner must be {} bytes, but was incorrectly {}", signer.get_owner_length(), _owner.len())
                 )
             )
         );
     }
-    bytes[2 + signer.signature_length..2 + signer.signature_length + signer.owner_length].copy_from_slice(&_owner);
+    bytes[2 + signer.get_signature_length()..2 + signer.get_signature_length() + signer.get_owner_length()].copy_from_slice(&_owner);
     
-    let position = 2 + signer.signature_length + signer.owner_length;
+    let position = 2 + signer.get_signature_length() + signer.get_owner_length();
     bytes[position] = if let Some(_target) = _target.clone() { 1 } else { 0 };
     if let Some(_target) = _target {
         if _target.len() != 32 {
@@ -115,5 +115,5 @@ pub fn create_data(data: Data, signer: &Signer, opts: Option<&DataItemCreateOpti
 
     bytes[data_start..data_start + _data.len()].copy_from_slice(&_data);
 
-    Ok(DataItem::new(bytes, &signer.keypair_path))
+    Ok(DataItem::new(bytes, &signer.get_keypair_path()))
 }

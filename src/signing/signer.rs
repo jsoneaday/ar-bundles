@@ -19,10 +19,15 @@ pub struct Signer {
 pub struct Options;
 
 pub trait SignerMaker {
+    fn get_signature_type(&self) -> i64;
+    fn get_signature_length(&self) -> usize;
+    fn get_owner_length(&self) -> usize;
+    
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, ArBundleErrors>;
     // async fn sign_data_item(data_item: StringOrVecu8, tags: Vec<Tag>) -> Result<DataItem, ArBundleErrors>;
     // async fn set_public_key() -> Result<(), ArBundleErrors>;
-    // async fn get_address() -> Result<String, ArBundleErrors>;
+    // async fn get_address(&self) -> Result<String, ArBundleErrors>;
+    fn get_public_key(&self) -> Vec<u8>;
     fn verify(&self, _pk: &[u8], _message: &[u8], _signature: &[u8]) -> bool {
         unimplemented!("You must implement verify method on child");
     }

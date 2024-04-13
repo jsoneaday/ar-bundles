@@ -76,6 +76,8 @@ dependencies = [
  "once_cell",
  "rand 0.8.5",
  "rsa 0.9.6",
+ "serde",
+ "serde_json",
  "sha2",
 ]
 
