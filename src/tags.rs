@@ -56,6 +56,7 @@ impl AVSCTap {
     }
 
     pub fn write_long(&mut self, n: i64) -> Result<(), ArBundleErrors> {
+        let buf = &mut self.buf;
         let mut f: f64;
         let mut m: i64;
     
@@ -63,20 +64,21 @@ impl AVSCTap {
             // Won't overflow, use integer arithmetic
             m = if n >= 0 { n << 1 } else { (!n << 1) | 1 };
             loop {
-                self.buf[self.pos as usize] = (m & 0x7f) as u8;
+                buf[self.pos] = (m & 0x7f) as u8;
                 m >>= 7;
-                if m == 0 && (self.buf[self.pos as usize] & 0x80 == 0) {
-                    break;
-                }
+
                 self.pos += 1;
+                if m == 0 && (buf[self.pos] & 0x80 == 0) {
+                    break;
+                }                
             }
         } else {
             // Use slower floating-point arithmetic
             f = if n >= 0 { n as f64 * 2.0 } else { -n as f64 * 2.0 - 1.0 };
             loop {
-                self.buf[self.pos as usize] = (f as i32 & 0x7f) as u8;
+                buf[self.pos] = (f as i32 & 0x7f) as u8;
                 f /= 128.0;
-                if f < 1.0 && (self.buf[self.pos as usize] & 0x80 == 0) {
+                if f < 1.0 && (buf[self.pos] & 0x80 == 0) {
                     break;
                 }
                 self.pos += 1;
@@ -84,6 +86,7 @@ impl AVSCTap {
         }
     
         self.pos += 1; // Update position (assuming it's a u8)
+        self.buf = buf.clone();
         Ok(())
     }
 
@@ -254,19 +257,13 @@ impl AVSCTap {
     }
 }
 
-pub fn deserialize_tags(tags_buffer: Vec<u8>) -> Vec<Tag> {
-    let mut tap = AVSCTap {
-        buf: tags_buffer,
-        pos: 0
-    };
-    return tap.read_tags();
-}
-
 pub fn serialize_tags(tags: &Vec<Tag>) -> Result<Vec<u8>, ArBundleErrors> {
-    let mut tap = AVSCTap {
-        buf: vec![],
-        pos: 0
-    };
+    let mut tap = AVSCTap::new(None, None);
     _ = tap.write_tags(tags);
     return tap.to_buffer();
+}
+
+pub fn deserialize_tags(tags_buffer: Vec<u8>) -> Vec<Tag> {
+    let mut tap = AVSCTap::new(Some(tags_buffer), None);
+    return tap.read_tags();
 }
