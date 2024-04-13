@@ -8,6 +8,7 @@ pub struct Tag {
     pub value: Option<String>
 }
 
+#[derive(Debug)]
 pub struct AVSCTap {
     buf: Vec<u8>,
     pos: usize
@@ -57,6 +58,7 @@ impl AVSCTap {
 
     pub fn write_long(&mut self, n: i64) -> Result<(), ArBundleErrors> {
         let buf = &mut self.buf;
+        println!("write_long buf: {:?}", buf);
         let mut f: f64;
         let mut m: i64;
     
