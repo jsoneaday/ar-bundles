@@ -17,13 +17,20 @@ pub struct AVSCTap {
 impl AVSCTap {
     pub fn new(buf: Option<Vec<u8>>, pos: Option<usize>) -> Self {
         Self {
-            buf: if buf.is_none() { Vec::with_capacity(MAX_TAG_BYTES) } else { buf.unwrap() },
+            buf: if buf.is_none() { 
+                let vec = Vec::with_capacity(MAX_TAG_BYTES);
+                println!("vec {:?}", vec.clone());
+                vec
+            } else { 
+                buf.unwrap() 
+            },
             pos: if pos.is_none() { 0 } else { pos.unwrap() }
         }
     }
 
     pub fn write_tags(&mut self, tags: &Vec<Tag>) -> Result<(), ArBundleErrors> {
         let n = tags.len();
+        println!("write_tags n {}", n);
 
         if n > 0 {
             _ = self.write_long(n as i64);
