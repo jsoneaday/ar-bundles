@@ -18,7 +18,8 @@ impl AVSCTap {
     pub fn new(buf: Option<Vec<u8>>, pos: Option<usize>) -> Self {
         Self {
             buf: if buf.is_none() { 
-                let vec = Vec::with_capacity(MAX_TAG_BYTES);
+                let mut vec = Vec::with_capacity(MAX_TAG_BYTES);
+                vec.fill(0);
                 println!("vec {:?}", vec.clone());
                 vec
             } else { 
