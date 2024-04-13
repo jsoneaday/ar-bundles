@@ -21,7 +21,7 @@ impl ArweaveSigner {
             signature_type: 1,
             owner_length: sig_config.get(&SignatureConfig::ARWEAVE).unwrap().pub_length,
             signature_length: sig_config.get(&SignatureConfig::ARWEAVE).unwrap().sig_length,
-            pk: jwk.base.n.clone(),
+            pk: jwk.n.clone(),
             jwk,            
             keypair_path: keypair_path.to_string()
         }
