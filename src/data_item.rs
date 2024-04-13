@@ -8,6 +8,7 @@ use crate::{
     tags::deserialize_tags, utils::byte_array_to_long
 };
 use async_trait::async_trait;
+use serde::Serialize;
 use crate::bundle_item::ResolvesTo;
 use crate::ar_data_bundle::sign;
 use arweave_rs::crypto::hash::sha256;
@@ -15,6 +16,7 @@ use arweave_rs::crypto::hash::sha256;
 pub const MAX_TAG_BYTES: usize = 4096;
 pub const MIN_BINARY_SIZE: usize = 80;
 
+#[derive(Serialize)]
 pub struct DataItem {
     pub base: BundleItem,
     binary: Vec<u8>,

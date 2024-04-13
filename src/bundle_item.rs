@@ -1,7 +1,9 @@
 use async_trait::async_trait;
+use serde::Serialize;
 use crate::signing::signer::SignerMaker;
 use crate::tags::Tag;
 
+#[derive(Serialize)]
 pub enum ResolvesTo<T> {
     Item(T),
     // Future(Pin<Box<dyn Future<Output = T>>>),
@@ -32,6 +34,7 @@ impl ToString for ResolvesTo<i64> {
     }
 }
 
+#[derive(Serialize)]
 pub struct BundleItem {
   pub signature_type: ResolvesTo<i64>,
   pub raw_signature: ResolvesTo<Vec<u8>>,

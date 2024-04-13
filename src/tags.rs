@@ -1,6 +1,8 @@
 use std::io::Write;
+use serde::{Deserialize, Serialize};
 use crate::{data_item::MAX_TAG_BYTES, errors::ArBundleErrors};
 
+#[derive(Serialize, Deserialize)]
 pub struct Tag {
     pub name: Option<String>,
     pub value: Option<String>
